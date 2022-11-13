@@ -62,7 +62,7 @@ def parse_contents(link):
             id = info["id"]
             audio = "assets/" + id + "." + extension
             file_ready = convert_to_wav(id, audio, extension)
-            #do_diarization(file_ready)
+            do_diarization(file_ready)
             grupos = do_grouping()
             gidx, speakers = do_split(id, grupos)
             nuevodiv = do_transcribe(id, gidx, speakers)

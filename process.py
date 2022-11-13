@@ -47,7 +47,7 @@ def do_grouping():
 
         end = re.findall('[0-9]+:[0-9]+:[0-9]+\.[0-9]+', string=d)[1]
         end = millisec(end)
-        if (lastend > end):  # segment engulfed by a previous segment
+        if (lastend > end):
             groups.append(g)
             g = []
         else:
@@ -88,12 +88,26 @@ def do_transcribe(id, gidx, speakers):
         print(f"Nuevo nombre para {item}")
         newName = input()
         speakers = list(map(lambda x: x.replace(item, newName), speakers))
+        unicos = list(map(lambda x: x.replace(item, newName), unicos))
     for i in range(gidx + 1):
         file = 'assets/ready/' + id + '_' + str(i) + '.wav'
         result = model.transcribe(file)
         message = speakers[i] + ": " + result["text"]
-        print(message)
+        insert_db(id, speakers[i], result["text"])
         tfinal.append(html.P(message))
     return html.Div(tfinal)
 
 
+def insert_db(id, speaker, message):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="",
+        database="prueba"
+    )
+    mycursor = mydb.cursor()
+    sql = "INSERT INTO transcript (video, speaker,message) VALUES (%s, %s,%s)"
+    val = (id, speaker, message)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record inserted.")
